@@ -10,7 +10,7 @@ void Neill_SDL_Init(SDL_Simplewin *sw)
 
    if (SDL_Init(SDL_INIT_VIDEO) != 0) {
       ON_ERROR("Unable to initialize SDL");
-   } 
+   }
 
    sw->finished = 0;
    sw->win= SDL_CreateWindow("SDL Window",
@@ -57,8 +57,8 @@ void Neill_SDL_UpdateScreen(SDL_Simplewin *sw)
 void Neill_SDL_Events(SDL_Simplewin *sw)
 {
    SDL_Event event;
-   while(SDL_PollEvent(&event)) 
-   {      
+   while(SDL_PollEvent(&event))
+   {
        switch (event.type){
           case SDL_QUIT:
           case SDL_MOUSEBUTTONDOWN:

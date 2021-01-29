@@ -1,8 +1,8 @@
 #include "interp.h"
-#include <assert.h>
 
 #define ACCEPTED_ARGS 2
 #define MAXTOKENSIZE 10
+#define strsame(A,B) (strcmp(A,B)==0)
 #define deg2rad(angle) ((angle) * M_PI / 180.0)
 
 cur* create_cur(void);
@@ -15,6 +15,7 @@ int main(int argc, char* argv[])
   char* filename;
   Prog* p;
   cur* c;
+  SDL_Simplewin sw;
 
   if(argc!=ACCEPTED_ARGS){
     fprintf(stderr, "ERROR: Correct Usage: %s <filename>\n", argv[0]);
@@ -23,13 +24,12 @@ int main(int argc, char* argv[])
 
   filename = ncalloc(sizeof(char), strlen(argv[1])+1);
   strcpy(filename, argv[1]);
-  printf("%s\n", filename);
   p = prog_init();
   readin_prog(filename, p);
   free(filename);
+
+  Neill_SDL_Init(&sw);
   c = create_cur();
-
-
   Main(p, c);
   prog_free(p);
   free(c);
@@ -297,7 +297,6 @@ void update_coord(cur *c)
   c->x1 = c->x2;
   c->y1 = c->y2;
 }
-
 
 void calculate(stack* s, char c)
 {

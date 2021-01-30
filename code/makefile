@@ -1,5 +1,7 @@
 CC=gcc
 COMMON= -Wall -Wextra -Wfloat-equal -pedantic -std=c90
+SDLCFLAGS=`sdl2-config --cflags`
+SDLLIBS=`sdl2-config --libs`
 DEBUG= -g3
 SANITIZE= $(COMMON) -fsanitize=undefined -fsanitize=address $(DEBUG)
 VALGRIND= $(COMMON) $(DEBUG)
@@ -17,7 +19,7 @@ testparser_v: Parser/parser.h Parser/parser.c Prog_struct/Prog_struct.c Prog_str
 
 
 interpret: Interpreter/interp.h Interpreter/interp.c Prog_struct/Prog_struct_interp.c Prog_struct/Prog_struct_interp.h General/general.h General/general.c Stack/stack.h Stack/stack.c sdl2/neillsdl2.h sdl2/neillsdl2.c
-	$(CC) Interpreter/interp.c Prog_struct/Prog_struct_interp.c General/general.c Stack/stack.c sdl2/neillsdl2.c -o interpret $(PRODUCTION) $(LDLIBS)
+	$(CC) Interpreter/interp.c Prog_struct/Prog_struct_interp.c General/general.c Stack/stack.c sdl2/neillsdl2.c -o interpret $(PRODUCTION) $(LDLIBS) $(SDLCFLAGS) $(SDLLIBS)
 
 clean:
 	rm -f testparser_s testparser testparser_v

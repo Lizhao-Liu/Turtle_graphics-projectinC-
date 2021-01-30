@@ -5,7 +5,7 @@
 #include <math.h>
 #include "../sdl2/neillsdl2.h"
 
-#define SCALE 10
+#define SCALE 2
 
 typedef struct cur{
   int x1, y1;
@@ -14,13 +14,13 @@ typedef struct cur{
 }cur;
 
 void readin_prog(char* filename, Prog* p);
-void Main(Prog *p, cur* c);
-void Instrctlist(Prog *p, cur *c);
-void Instruction(Prog *p, cur *c);
-void FD(Prog *p, cur *c);
+void Main(Prog *p, cur* c, SDL_Simplewin *sw);
+void Instrctlist(Prog *p, cur *c, SDL_Simplewin *sw);
+void Instruction(Prog *p, cur *c, SDL_Simplewin *sw);
+void FD(Prog *p, cur *c, SDL_Simplewin *sw);
 void LT(Prog *p, cur *c);
 void RT(Prog *p, cur *c);
-void DO(Prog *p, cur *c);
+void DO(Prog *p, cur *c, SDL_Simplewin *sw);
 void SET(Prog *p);
 void Polish(Prog *p, double* result, stack* s);
 void Op(Prog *p);

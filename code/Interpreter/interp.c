@@ -2,6 +2,7 @@
 
 #define ACCEPTED_ARGS 2
 #define MAXTOKENSIZE 10
+#define MILLISECONDDELAY 100
 #define strsame(A,B) (strcmp(A,B)==0)
 #define deg2rad(angle) ((angle) * M_PI / 180.0)
 
@@ -9,6 +10,7 @@ cur* create_cur(void);
 void get_coord(cur *c, double dist);
 void update_coord(cur *c);
 void calculate(stack* s, char c);
+void draw(cur* c, SDL_Simplewin *sw);
 
 int main(int argc, char* argv[])
 {
@@ -28,9 +30,12 @@ int main(int argc, char* argv[])
   readin_prog(filename, p);
   free(filename);
 
-  Neill_SDL_Init(&sw);
+  /*Neill_SDL_Init(&sw);*/
+
   c = create_cur();
-  Main(p, c);
+  Main(p, c, &sw);
+  /*SDL_Quit();
+  atexit(SDL_Quit);*/
   prog_free(p);
   free(c);
   return 0;
@@ -47,30 +52,30 @@ void readin_prog(char* filename, Prog* p)
   fclose(fp);
 }
 
-void Main(Prog *p, cur* c)
+void Main(Prog *p, cur* c, SDL_Simplewin *sw)
 {
   if(!strsame(p->str[p->cw],"{"))
   {
     on_error("No Begin Symbol?");
   }
   p->cw = p->cw + 1;
-  Instrctlist(p, c);
+  Instrctlist(p, c, sw);
 }
 
-void Instrctlist(Prog *p, cur *c)
+void Instrctlist(Prog *p, cur *c, SDL_Simplewin *sw)
 {
   if(strsame(p->str[p->cw], "}")){
     return;
   }
-  Instruction(p, c);
+  Instruction(p, c, sw);
   p->cw = p->cw + 1;
-  Instrctlist(p, c);
+  Instrctlist(p, c, sw);
 }
 
-void Instruction(Prog *p, cur *c)
+void Instruction(Prog *p, cur *c, SDL_Simplewin *sw)
 {
   if(strsame(p->str[p->cw], "FD")){
-    FD(p, c);
+    FD(p, c, sw);
     return;
   }
   if(strsame(p->str[p->cw], "LT")){
@@ -82,7 +87,7 @@ void Instruction(Prog *p, cur *c)
     return;
   }
   if(strsame(p->str[p->cw], "DO")){
-    DO(p, c);
+    DO(p, c, sw);
     return;
   }
   if(strsame(p->str[p->cw], "SET")){
@@ -92,13 +97,24 @@ void Instruction(Prog *p, cur *c)
   on_error("Expecting an instruction?");
 }
 
-void FD(Prog *p, cur *c)
+void FD(Prog *p, cur *c, SDL_Simplewin *sw)
 {
 
   p->cw = p->cw + 1;
   get_coord(c, Varnum(p));
-  printf("%d %d --> %d %d\n\n", c->x1, c->y1, c->x2, c->y2);
+  /*draw(c, sw);*/
+  printf("%d %d --> %d %d\n\n", c->x1+WWIDTH/2, c->y1+WHEIGHT/2, c->x2+WWIDTH/2, c->y2+WHEIGHT/2);
   update_coord(c);
+}
+
+void draw(cur* c, SDL_Simplewin *sw)
+{
+  Neill_SDL_SetDrawColour(sw, 255, 255, 255);
+  SDL_RenderDrawLine(sw->renderer, c->x1+WWIDTH/2, c->y1+WHEIGHT/2,\
+                                   c->x2+WWIDTH/2, c->y2+WHEIGHT/2);
+  Neill_SDL_UpdateScreen(sw);
+  SDL_Delay(MILLISECONDDELAY);
+  Neill_SDL_Events(sw);
 }
 
 void LT(Prog *p, cur *c)
@@ -113,7 +129,7 @@ void RT(Prog *p, cur *c)
   c->degree += fmod(Varnum(p), 360);
 }
 
-void DO(Prog *p, cur *c)
+void DO(Prog *p, cur *c, SDL_Simplewin *sw)
 {
   unsigned vpos, min, max, startplace;
   var* v;
@@ -151,7 +167,7 @@ void DO(Prog *p, cur *c)
   v->value = min;
   while(v->value <= max){
     p->cw = startplace;
-    Instrctlist(p, c);
+    Instrctlist(p, c, sw);
     v->value = v->value + 1;
   }
 }
@@ -281,15 +297,13 @@ bool isNum(char* s)
 cur* create_cur(void)
 {
   cur* c = (cur*)ncalloc(sizeof(cur), 1);
-  c->x1 = WWIDTH/2;
-  c->y1 = WHEIGHT/2;
   return c;
 }
 
 void get_coord(cur *c, double dist) /*dist here refers to the hypotenuse in the Right triangle*/
 {
-  c->x2 = (int)(c->x1 + sin(deg2rad(c->degree))*dist*SCALE);
-  c->y2 = (int)(c->y1 + cos(deg2rad(c->degree))*dist*SCALE);
+  c->x2 = (int)(c->x1 + (sin(deg2rad(c->degree))*dist*SCALE));
+  c->y2 = (int)(c->y1 - (cos(deg2rad(c->degree))*dist*SCALE));
 }
 
 void update_coord(cur *c)

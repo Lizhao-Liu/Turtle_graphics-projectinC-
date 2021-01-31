@@ -1,0 +1,5 @@
+{
+  DO A FROM 3 TO 8 {
+    LT 30
+    FD 30
+}

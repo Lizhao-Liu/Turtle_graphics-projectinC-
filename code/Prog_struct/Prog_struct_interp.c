@@ -4,7 +4,6 @@ Prog* prog_init(void)
 {
   Prog* p = (Prog*) ncalloc(sizeof(Prog), 1);
   p->str = (char**) ncalloc(sizeof(char*), INITSIZE);
-  p->var_pool = (var*) ncalloc(sizeof(var), VARMAXSIZE);
   p->capacity = INITSIZE;
   return p;
 }
@@ -34,32 +33,8 @@ bool prog_free(Prog* p)
   for(i=0; i<p->size; i++){
     free(p->str[i]);
   }
-  free(p->var_pool);
+  free(p->library);
   free(p->str);
   free(p);
   return true;
-}
-
-var* add_var(var* var_pool, char name)
-{
-  int index = name - 'A';
-  var_pool[index].name = name;
-  return &var_pool[index];
-}
-
-void store_var(var* var_pool, var* v)
-{
-  int index = v->name - 'A';
-  var_pool[index].value = v->value;
-}
-
-double load_var(var* var_pool, char name)
-{
-  int index = name - 'A';
-  double d;
-  if(var_pool[index].name==0){
-    on_error("Cannot load the variable");
-  }
-  d = var_pool[index].value;
-  return d;
 }

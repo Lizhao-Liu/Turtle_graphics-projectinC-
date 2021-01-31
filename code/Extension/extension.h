@@ -2,16 +2,10 @@
 #include "../General/bool.h"
 #include "../Prog_struct/Prog_struct_interp.h"
 #include "../Stack/stack.h"
+#include "../Hashing/hash.h"
 #include "../sdl2/neillsdl2.h"
 
 #define SCALE 2
-#define MILLISECONDDELAY 100
-#define VARMAXSIZE 26 /*[A-Z]*/
-
-typedef struct variable{
-  char name;
-  double value;
-}var;
 
 typedef struct cur{
   int x1, y1;
@@ -35,5 +29,3 @@ bool isVar(char* s);
 bool isNum(char* s);
 bool isVarnum(char* s);
 bool isOp(char* s);
-var* add_var(var* library, char name);
-double load_var(var* library, char name);

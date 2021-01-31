@@ -1,0 +1,17 @@
+<MAIN> ::= "{" <INSTRCTLST>
+<INSTRCTLST> ::= <INSTRUCTION><INSTRCTLST> | "}"
+<INSTRUCTION> ::= <FD> | <LT> | <RT> | <DO> | <SET> | <DEFINE> | <CALL>
+<FD> ::= "FD" <VARNUM> | "FD"  <VARNUM> <COLOR>
+<LT> ::= "LT" <VARNUM>
+<RT> ::= "RT" <VARNUM>
+<DO> ::= "DO" <VAR> "FROM" <VARNUM> "TO" <VARNUM> "{" <INSTRCTLST>
+<DEFINE> ::= "DEFINE" <NEWINSTRUCTION> "{" <INSTRCTLST>
+<CALL>::= "CALL" <NEWINSTRUCTION>
+<NEWINSTRUCTION> ::= "[" [A-Z]+ "]"
+<VAR> ::= [A-Za-z]+ 
+<VARNUM> ::= number | <VAR>
+<COLOR>::= "COLOR" <COLORCHOICES>
+<COLORCHOICES> ::= "Y" | "R" | "G" | "W" | "B" |"C" | "K"
+<SET> ::= "SET" <VAR> ":=" <POLISH>
+<POLISH> ::= <OP> <POLISH> | <VARNUM> <POLISH> | ";"
+<OP> ::= "+" | "−" | "*" | "/"

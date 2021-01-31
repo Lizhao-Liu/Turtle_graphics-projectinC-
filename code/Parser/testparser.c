@@ -2,51 +2,37 @@
 #include "../Stack/stack.h"
 #include "parser.h"
 #include <math.h>
+#define TEST_TO_RUN 0
 
 void test_Prog_array();
 void test_parser_tiny_func();
 void test_stack();
+int main_test1(void);
+int main_test_tiny_func(void);
+int main_program(int argc, char* argv[]);
 
-int main(void)
+int main(int argc, char *argv[])
 {
-  char* filename = "../data/basic.ttl";
-  Prog* p = prog_init();
+     switch(TEST_TO_RUN){
+       case 3:
+         return main_test_interpreter();
+       case 2:
+         return main_test_parser();
+       case 1:
+         return main_test_unit();
+       case 0:
+         return main_program(argc, argv);
+     }
 
-  readin_prog(filename, p);
-  Main(p);
-  assert(p->cw==p->size-1);
-  printf("Passed OK\n");
-  prog_free(p);
+}
 
-  filename = "../data/loop.ttl";
-  p = prog_init();
-  readin_prog(filename, p);
-  Main(p);
-  assert(p->cw==p->size-1);
-  printf("Passed OK\n");
-  prog_free(p);
-
-  filename = "../data/nested.ttl";
-  p = prog_init();
-  readin_prog(filename, p);
-  Main(p);
-  assert(p->cw==p->size-1);
-  printf("Passed OK\n");
-  prog_free(p);
-
-  filename = "../data/variable.ttl";
-  p = prog_init();
-  readin_prog(filename, p);
-  Main(p);
-  assert(p->cw==p->size-1);
-  printf("Passed OK\n");
-  prog_free(p);
-
+int main_test_tiny_func(void)
+{
   test_Prog_array();
   test_parser_tiny_func();
   test_stack();
-
   return 0;
+
 }
 
 /*int main_test_tiny_func(void)

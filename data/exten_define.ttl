@@ -1,0 +1,12 @@
+{
+  DEFINE [LOOP] {
+    DO A FROM 1 TO 8 {
+      FD 30
+      LT 45
+    }
+  }
+  CALL [LOOP]
+  FD 30
+  CALL [LOOP]
+  FD 30
+}

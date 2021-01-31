@@ -1,10 +1,8 @@
 #include "parser.h"
-
 #define ACCEPTED_ARGS 2
-#define MAXTOKENSIZE 10
 
 
-/*int main(int argc, char* argv[])
+int main(int argc, char* argv[])
 {
   char* filename;
   Prog* p;
@@ -17,10 +15,11 @@
   filename = ncalloc(sizeof(char), strlen(argv[1])+1);
   p = prog_init();
   readin_prog(filename, p);
+  Main(p);
   free(filename);
   prog_free(p);
   return 0;
-}*/
+}
 
 void readin_prog(char* filename, Prog* p)
 {

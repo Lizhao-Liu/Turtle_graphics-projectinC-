@@ -1,7 +1,8 @@
-#include "interp.h"
+#include "extension.h"
 
 #define ACCEPTED_ARGS 2
 #define MAXTOKENSIZE 20
+#define MILLISECONDDELAY 100
 #define strsame(A,B) (strcmp(A,B)==0)
 #define deg2rad(angle) ((angle) * M_PI / 180.0)
 
@@ -10,7 +11,11 @@ void get_coord(cur *c, double dist);
 void update_coord(cur *c);
 void calculate(stack* s, char c);
 void draw(cur* c, SDL_Simplewin *sw);
-
+void read_color(char *s, SDL_Simplewin *sw);
+bool islegal(char c);
+unsigned nextstep(Prog *p);
+void CALL(Prog *p, cur *c, SDL_Simplewin *sw);
+void DEFINE(Prog *p);
 
 int main(int argc, char* argv[])
 {
@@ -27,7 +32,7 @@ int main(int argc, char* argv[])
   filename = ncalloc(sizeof(char), strlen(argv[1])+1);
   strcpy(filename, argv[1]);
   p = prog_init();
-  p->library = (var*) ncalloc(sizeof(var), VARMAXSIZE);
+  p->library=library_init();
   readin_prog(filename, p);
   free(filename);
 
@@ -71,6 +76,7 @@ void Instrctlist(Prog *p, cur *c, SDL_Simplewin *sw)
   Instruction(p, c, sw);
   p->cw = p->cw + 1;
   Instrctlist(p, c, sw);
+  on_error("Expecting an ending <}>");
 }
 
 void Instruction(Prog *p, cur *c, SDL_Simplewin *sw)
@@ -95,22 +101,129 @@ void Instruction(Prog *p, cur *c, SDL_Simplewin *sw)
     SET(p);
     return;
   }
-  on_error("Expecting an instruction?");
+  if(strsame(p->str[p->cw], "DEFINE")){
+    DEFINE(p);
+    return;
+  }
+  if(strsame(p->str[p->cw], "CALL")){
+    CALL(p, c, sw);
+    return;
+  }
+  printf("%s\n", p->str[p->cw]);
+  printf("Expecting an instruction?");
 }
+
+void CALL(Prog *p, cur *c, SDL_Simplewin *sw)
+{
+  unsigned pointer, len, next;
+  p->cw = p->cw + 1;
+  len = strlen(p->str[p->cw]);
+  if(len > 2 && p->str[p->cw][0]=='[' \
+             && p->str[p->cw][len-1] ==']'){
+    pointer = (unsigned int)get_value(p->library, p->str[p->cw]);
+    next = p->cw;
+    p->cw = pointer;
+    Instrctlist(p, c, sw);
+    p->cw = next;
+  }
+  else{
+    on_error("Cannot read the CALL instruction");
+  }
+
+}
+
+void DEFINE(Prog *p)
+{
+  int len;
+  unsigned int pointer;
+  p->cw = p->cw + 1;
+  len = strlen(p->str[p->cw]);
+  if(len > 2 && p->str[p->cw][0]=='[' \
+             && p->str[p->cw][len-1] ==']'\
+             && strsame(p->str[p->cw+1], "{")){
+    pointer = p->cw + 2;
+    insert_item(p->str[p->cw], pointer, p->library);
+    p->cw =p->cw + 1;
+    p->cw = nextstep(p);
+  }
+  else{
+    on_error("Cannot read the DEFINE instruction");
+  }
+}
+
+unsigned nextstep(Prog *p)
+{
+  stack* s = stack_init();
+  double temp = 1;
+  do{
+    if(p->cw == p->size){
+      on_error("Cannot find the closing <}> in DEFINE");
+    }
+    if(strsame(p->str[p->cw], "{")){
+      stack_push(s, temp);
+    }
+    if(strsame(p->str[p->cw], "}")){
+      stack_pop(s, &temp);
+    }
+    p->cw = p->cw + 1;
+  }while(!stack_isempty(s));
+  stack_free(s);
+  return p->cw - 1;
+}
+
 
 void FD(Prog *p, cur *c, SDL_Simplewin *sw)
 {
-
   p->cw = p->cw + 1;
   get_coord(c, Varnum(p));
-  /*draw(c, sw);*/
+  /*if(strsame(p->str[p->cw+1], "COLOR")){
+    p->cw = p->cw + 2;
+    read_color(p->str[p->cw], sw);
+  }
+  else{
+    Neill_SDL_SetDrawColour(sw, 255, 255, 255);
+  }
+  draw(c, sw);*/
   printf("%d %d --> %d %d\n\n", c->x1+WWIDTH/2, c->y1+WHEIGHT/2, c->x2+WWIDTH/2, c->y2+WHEIGHT/2);
   update_coord(c);
 }
 
+void read_color(char *s, SDL_Simplewin *sw)
+{
+  if(strlen(s)!=1){
+    on_error("Expecting a colour choice? e.g. <G>");
+  }
+  switch(s[0]){
+    case 'Y':
+      Neill_SDL_SetDrawColour(sw, 255, 255, 0);
+      break;
+    case 'R':
+      Neill_SDL_SetDrawColour(sw, 255, 0, 0);
+      break;
+    case 'G':
+      Neill_SDL_SetDrawColour(sw, 0, 128, 0);
+      break;
+    case 'W':
+      Neill_SDL_SetDrawColour(sw, 255, 255, 255);
+      break;
+    case 'B':
+      Neill_SDL_SetDrawColour(sw, 0, 0, 255);
+      break;
+    case 'C':
+      Neill_SDL_SetDrawColour(sw, 0, 255, 255);
+      break;
+    case 'P':
+      Neill_SDL_SetDrawColour(sw, 255, 0, 255);
+    case 'K':
+      Neill_SDL_SetDrawColour(sw, 0, 0, 0);
+      break;
+    default:
+      on_error("Cannot read your colour choice? try e.g. <G> for green");
+  }
+}
+
 void draw(cur* c, SDL_Simplewin *sw)
 {
-  Neill_SDL_SetDrawColour(sw, 255, 255, 255);
   SDL_RenderDrawLine(sw->renderer, c->x1+WWIDTH/2, c->y1+WHEIGHT/2,\
                                    c->x2+WWIDTH/2, c->y2+WHEIGHT/2);
   Neill_SDL_UpdateScreen(sw);
@@ -133,7 +246,7 @@ void RT(Prog *p, cur *c)
 void DO(Prog *p, cur *c, SDL_Simplewin *sw)
 {
   unsigned vpos, min, max, startplace;
-  var* v;
+  item* v;
 
   p->cw = p->cw + 1;
   if(!isVar(p->str[p->cw])){
@@ -164,8 +277,7 @@ void DO(Prog *p, cur *c, SDL_Simplewin *sw)
 
   p->cw = p->cw + 1;
   startplace = p->cw;
-  v = add_var(p->library, p->str[vpos][0]);
-  v->value = min;
+  v = insert_item(p->str[vpos], min, p->library);
   while(v->value <= max){
     p->cw = startplace;
     Instrctlist(p, c, sw);
@@ -175,8 +287,9 @@ void DO(Prog *p, cur *c, SDL_Simplewin *sw)
 
 void SET(Prog *p)
 {
-  var* v;
+  double value;
   stack *s;
+  unsigned int vpos;
   p->cw = p->cw + 1;
   if(!isVar(p->str[p->cw])){
     on_error("Expecting a varaible?");
@@ -184,11 +297,11 @@ void SET(Prog *p)
   if(!strsame(p->str[p->cw+1], ":=")){
     on_error("Incorrect Grammar: Expecting <:=>?");
   }
-
-  v = add_var(p->library, p->str[p->cw][0]);
+  vpos = p->cw;
   p->cw = p->cw + 1;
   s = stack_init();
-  Polish(p, &(v->value), s);
+  Polish(p, &(value), s);
+  insert_item(p->str[vpos], value, p->library);
 }
 
 void Polish(Prog *p, double* result, stack* s)
@@ -231,11 +344,11 @@ double Varnum(Prog *p)
 {
   double d = 0;
   char* s = p->str[p->cw];
-  if(isVar(s)){
-    d = load_var(p->library, s[0]);
-  }
-  else if(isNum(s)){
+  if(isNum(s)){
     sscanf(s, "%lf", &d);
+  }
+  else if(isVar(s)){
+    d = get_value(p->library, s);
   }
   else{
     on_error("Expecting a number or a varaible?");
@@ -263,7 +376,23 @@ bool isVarnum(char* s)
 
 bool isVar(char* s)
 {
-  if(strlen(s)==1 && s[0]>='A' && s[0]<='Z'){
+  unsigned int len = strlen(s);
+  unsigned int i;
+
+  for(i=0; i<len; i++){
+    if(!islegal(s[i])){
+      return false;
+    }
+  }
+  return true;
+}
+
+bool islegal(char c)
+{
+  if(c>='A' && c<='Z'){
+    return true;
+  }
+  if(c>='a' && c<='z'){
     return true;
   }
   return false;
@@ -338,23 +467,4 @@ void calculate(stack* s, char c)
       on_error("Cannot read the polish expression");
   }
   stack_push(s, r);
-}
-
-var* add_var(var* library, char name)
-{
-  int index = name - 'A';
-  library[index].name = name;
-  return &library[index];
-}
-
-
-double load_var(var* library, char name)
-{
-  int index = name - 'A';
-  double d;
-  if(library[index].name==0){
-    on_error("Cannot load the variable");
-  }
-  d = library[index].value;
-  return d;
 }

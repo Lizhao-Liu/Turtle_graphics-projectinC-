@@ -1,0 +1,8 @@
+{
+  RT 90
+  DO A FROM 1 TO 5 {
+    FD 50
+    RT 144
+  }
+  LT 90
+}

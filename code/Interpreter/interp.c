@@ -1,6 +1,6 @@
 #include "interp.h"
 
-#define TEST 0 /*if there is a test being done*/
+#define TEST 1 /*if there is a test being done*/
 #define SDL 1 /*if draw the output in sdl*/
 #define ACCEPTED_ARGS 2
 #define MAXTOKENSIZE 20

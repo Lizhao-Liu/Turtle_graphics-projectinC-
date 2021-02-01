@@ -121,6 +121,7 @@ void test_interp_integ_program()
     SDL_Quit();
     atexit(SDL_Quit);
     #endif
+    free(p->library);
     prog_free(p);
     free(c);
     printf("file <%s> passed\n", filename[i]);

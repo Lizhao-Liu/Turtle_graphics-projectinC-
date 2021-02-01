@@ -1,12 +1,12 @@
 {
   DEFINE [LOOP] {
     DO A FROM 1 TO 8 {
-      FD 30
+      FD 30 COLOR B
       LT 45
     }
   }
   CALL [LOOP]
-  FD 30
+  FD 30 COLOR C
   CALL [LOOP]
   FD 30
 }

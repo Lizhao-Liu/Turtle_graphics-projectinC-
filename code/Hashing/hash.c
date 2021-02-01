@@ -43,7 +43,7 @@ double get_value(library* a, char* name)
 {
   hash_index index = hashcode(name, a->capacity);
   int found = false;
-  double value;
+  double value = 0;
   if(a==NULL || a->v[index].name==NULL){
     on_error("cannot find the value of the item");
   }
@@ -70,6 +70,11 @@ void resize(library* a)
   for(i=0; i<oldcapacity; i++){
     if(oldpool[i].name!=NULL){
       insert_item(oldpool[i].name, oldpool[i].value, a);
+    }
+  }
+  for(i=0; i<oldcapacity; i++){
+    if(oldpool[i].name){
+      free(oldpool[i].name);
     }
   }
   free(oldpool);

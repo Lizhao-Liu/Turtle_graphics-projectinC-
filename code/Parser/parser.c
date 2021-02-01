@@ -1,5 +1,5 @@
 #include "parser.h"
-#define TEST 1
+#define TEST 0
 #define ACCEPTED_ARGS 2
 #define MAXTOKENSIZE 10
 #define strsame(A,B) (strcmp(A,B)==0)

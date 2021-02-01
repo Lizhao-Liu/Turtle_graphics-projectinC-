@@ -51,6 +51,7 @@ int main_program(int argc, char* argv[])
   SDL_Quit();
   atexit(SDL_Quit);
   #endif
+  free(p->library);
   prog_free(p);
   free(c);
   return 0;
@@ -311,7 +312,7 @@ bool isVar(char* s)
 bool isNum(char* s)
 {
   unsigned int i=0;
-  unsigned int dp; /*the place of decimal point if existed*/
+  unsigned int dp = 0; /*the place of decimal point if existed*/
   unsigned int count = 0; /*the number decimal points*/
   if(s[i]=='-'){ /*check if it is a negative number*/
     i++;

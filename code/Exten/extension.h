@@ -37,3 +37,4 @@ bool isVar(char* s);
 bool isNum(char* s);
 bool isVarnum(char* s);
 bool isOp(char* s);
+cur* create_cur(void);

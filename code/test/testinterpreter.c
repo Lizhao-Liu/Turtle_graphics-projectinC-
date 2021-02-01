@@ -100,7 +100,7 @@ void test_interp_integ_program()
 {
   char* filename[TESTFILES] = {"../data/basic.ttl", "../data/loop.ttl", \
                               "../data/variable.ttl", "../data/nested.ttl",\
-                              "star.ttl"};
+                              "../data/star.ttl"};
   Prog* p;
   cur* c;
   SDL_Simplewin sw;

@@ -33,9 +33,6 @@ bool prog_free(Prog* p)
   for(i=0; i<p->size; i++){
     free(p->str[i]);
   }
-  if(p->library){
-    free(p->library);
-  }
   free(p->str);
   free(p);
   return true;

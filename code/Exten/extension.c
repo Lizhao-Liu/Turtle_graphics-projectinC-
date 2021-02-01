@@ -1,6 +1,6 @@
 #include "extension.h"
 
-#define TEST 0
+#define TEST 1
 #define ACCEPTED_ARGS 2
 #define MAXTOKENSIZE 20
 #define strsame(A,B) (strcmp(A,B)==0)
@@ -8,7 +8,6 @@
 
 int main_program(int argc, char* argv[]);
 int main_test();
-cur* create_cur(void);
 void get_coord(cur *c, double dist);
 void update_coord(cur *c);
 void calculate(stack* s, char c);
@@ -16,8 +15,6 @@ void draw(cur* c, SDL_Simplewin *sw);
 void read_color(char *s, SDL_Simplewin *sw);
 bool islegal(char c);
 unsigned nextstep(Prog *p);
-void CALL(Prog *p, cur *c, SDL_Simplewin *sw);
-void DEFINE(Prog *p);
 
 int main(int argc, char* argv[]){
   if(TEST==1){
@@ -53,6 +50,7 @@ int main_program(int argc, char* argv[])
   Main(p, c, &sw);
   SDL_Quit();
   atexit(SDL_Quit);
+  free_library(p->library);
   prog_free(p);
   free(c);
   return 0;
@@ -271,7 +269,6 @@ void RT(Prog *p, cur *c)
 void DO(Prog *p, cur *c, SDL_Simplewin *sw)
 {
   unsigned vpos, min, max, startplace;
-  item* v;
   double d;
 
   p->cw = p->cw + 1;
@@ -311,7 +308,7 @@ void DO(Prog *p, cur *c, SDL_Simplewin *sw)
 
   p->cw = p->cw + 1;
   startplace = p->cw;
-  v = insert_item(p->str[vpos], min, p->library);
+  insert_item(p->str[vpos], min, p->library);
   d = min;
   while(d<=max){
     p->cw = startplace;
@@ -394,6 +391,7 @@ double Varnum(Prog *p)
     d = get_value(p->library, s);
   }
   else{
+    printf("where: %s %d", p->str[p->cw], p->cw);
     prog_free(p);
     on_error("Expecting a number or a varaible?");
   }
@@ -445,7 +443,7 @@ bool islegal(char c)
 bool isNum(char* s)
 {
   unsigned int i=0;
-  unsigned int dp; /*the place of decimal point if existed*/
+  unsigned int dp = 0; /*the place of decimal point if existed*/
   unsigned int count = 0; /*the number decimal points*/
   if(s[i]=='-'){ /*check if it is a negative number*/
     i++;

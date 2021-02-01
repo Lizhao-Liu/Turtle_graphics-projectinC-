@@ -1,7 +1,7 @@
 {
   DO base FROM 1 TO 100 {
     SET x := base 1.5 * ;
-    FD x
+    FD x COLOR G
     RT 62
   }
 }

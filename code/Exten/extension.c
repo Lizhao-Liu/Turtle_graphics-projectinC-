@@ -1,6 +1,6 @@
 #include "extension.h"
 
-#define TEST 1
+#define TEST 0
 #define ACCEPTED_ARGS 2
 #define MAXTOKENSIZE 20
 #define strsame(A,B) (strcmp(A,B)==0)
@@ -136,12 +136,15 @@ void CALL(Prog *p, cur *c, SDL_Simplewin *sw)
   unsigned pointer, len, next;
   p->cw = p->cw + 1;
   len = strlen(p->str[p->cw]);
+  /*check the grammar*/
   if(len > 2 && p->str[p->cw][0]=='[' \
              && p->str[p->cw][len-1] ==']'){
     pointer = (unsigned int)get_value(p->library, p->str[p->cw]);
     next = p->cw;
+    /*change the current word pointer to the saved place and start the INSTRCTLST*/
     p->cw = pointer;
     Instrctlist(p, c, sw);
+    /*if it hits "}", the process finishes and set the current word value to the right next place*/
     p->cw = next;
   }
   else{
@@ -158,12 +161,15 @@ void DEFINE(Prog *p)
   unsigned int pointer;
   p->cw = p->cw + 1;
   len = strlen(p->str[p->cw]);
+  /*check the grammar*/
   if(len > 2 && p->str[p->cw][0]=='[' \
              && p->str[p->cw][len-1] ==']'\
              && strsame(p->str[p->cw+1], "{")){
     pointer = p->cw + 2;
+    /*store the name and the place of the first instruction in this set to the hash table*/
     insert_item(p->str[p->cw], pointer, p->library);
     p->cw =p->cw + 1;
+    /*use stack to get the next executable instruction*/
     p->cw = nextstep(p);
   }
   else{
@@ -181,6 +187,8 @@ unsigned nextstep(Prog *p)
       prog_free(p);
       on_error("Cannot find the closing <}> in DEFINE");
     }
+    /*if there is a "{", push one to the stack.
+    if there is a "}", pop one from the stack.*/
     if(strsame(p->str[p->cw], "{")){
       stack_push(s, temp);
     }
@@ -189,6 +197,7 @@ unsigned nextstep(Prog *p)
     }
     p->cw = p->cw + 1;
   }while(!stack_isempty(s));
+  /*if the stack is empty again, finish this process and go back to execute the next instrucion.*/
   stack_free(s);
   return p->cw - 1;
 }
@@ -200,13 +209,14 @@ void FD(Prog *p, cur *c, SDL_Simplewin *sw)
   get_coord(c, Varnum(p));
   if(strsame(p->str[p->cw+1], "COLOR")){
     p->cw = p->cw + 2;
+    /*read the color choice and set the draw color to the right choice*/
     read_color(p->str[p->cw], sw);
   }
   else{
+    /*default color: white*/
     Neill_SDL_SetDrawColour(sw, 255, 255, 255);
   }
   draw(c, sw);
-  /*printf("%d %d --> %d %d\n\n", c->x1+WWIDTH/2, c->y1+WHEIGHT/2, c->x2+WWIDTH/2, c->y2+WHEIGHT/2);*/
   update_coord(c);
 }
 

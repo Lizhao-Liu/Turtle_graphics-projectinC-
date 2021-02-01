@@ -1,0 +1,30 @@
+
+There are two modes of testing being carried:
+
+1. Testing in the micro / unit tests. A white-box testing is used to make sure each component parts of the program works appropriately.
+   firstly, I tested all the data structs I used in this program such as hashing, stack, and reallocated array separately.
+   (please see /test/unit_test.c for testing code and use "make uniittest" to see the test results.)
+   secondly, I focused on testing the facilitating tiny functions in each program (interpreter/parser).
+   (Please see the test_xxx_tiny_func() in testparser.c or testinterpreter.c),
+   in this case, functions such as calculate(), isNum(), isVar(), readin_prog(), get_coord(), add_var() etc. are well tested.
+
+2. Testing in the macro / integration tests: the program needs to parse or interpret a file
+   A combination of white-box and black-box testing is used in this case.
+
+   for white-box testing, I made up many files of problem cases of short phrases (see bad_1.ttl - bad_16.ttl), with different kinds of problems.
+   for example, bad_11 tested if the program responds appropriately when the to-be-loaded variable has not been set a value before.
+   bad_4 to bad_8 are created with a focus on the DO grammar, which shows different mistakes such as lack of variable, no ending "}", lack of max number, incorrect format etc.
+   These files are created to test if the program can spot the specific problem correctly and exit and feedback correspondingly.
+
+   for black-box testing, the test_interp_program() in testinterpreter.c or testparser.c shows how it has been done.
+   a number of filenames with a whole set of words are inputted from simple to complex to the program, and to test if there is any problem coming when the program parse/interpret the files
+   and to check if the transitions from instruction to instruction are handled properly. Please use "make testinterp" or "make testparser" to see the result.
+   for extension, I created exten_call.ttl, exten_color, exten_define.ttl exten_variable.ttl files in data folder, which is used for integration test in testextension.c.
+   Please use "make testextension" to see the result and output.
+
+   *** ***
+   Remind: Please switch the TEST value to 1
+   in interp.c, parse.c or extension.c (e.g. #define TEST 1)
+   when building the testinterp, testparser or testextension
+   and turn it off to make interp, parse, extension.
+   *** ***

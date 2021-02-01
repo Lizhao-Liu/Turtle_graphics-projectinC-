@@ -1,4 +1,5 @@
 #include "parser.h"
+/*Test is set to one if there is a test being done*/
 #define TEST 0
 #define ACCEPTED_ARGS 2
 #define MAXTOKENSIZE 10
@@ -9,9 +10,11 @@ int main_test();
 
 
 int main(int argc, char* argv[]){
+  /*if TEST is set as one, use the main_test function to do the test*/
   if(TEST==1){
     return main_test();
   }
+  /*if TEST is set as zero, use the main_program function to parse the files inputted*/
   else{
     return main_program(argc, argv);
   }
@@ -60,6 +63,7 @@ void Main(Prog *p)
 
 void Instrctlist(Prog *p)
 {
+  /*if the current word pointer has reached the end of the file but still didn't find the ending "}"*/
   if(p->cw >= p->size){
     prog_free(p);
     on_error("No ending Symbol?");

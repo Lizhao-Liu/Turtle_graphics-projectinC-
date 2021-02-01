@@ -1,11 +1,11 @@
 #include "interp.h"
 
-#define TEST 0
-#define SDL 1
+#define TEST 0 /*if there is a test being done*/
+#define SDL 1 /*if draw the output in sdl*/
 #define ACCEPTED_ARGS 2
 #define MAXTOKENSIZE 20
 #define strsame(A,B) (strcmp(A,B)==0)
-#define deg2rad(angle) ((angle) * M_PI / 180.0)
+#define deg2rad(angle) ((angle) * M_PI / 180.0)/*change the angle degree to radian degree*/
 
 
 int main_program(int argc, char* argv[]);
@@ -14,9 +14,11 @@ void draw(cur* c, SDL_Simplewin *sw);
 
 
 int main(int argc, char* argv[]){
+  /*if TEST is set as one, use the main_test function to do the test*/
   if(TEST==1){
     return main_test();
   }
+  /*if TEST is set as zero, use the main_program function to parse the files inputted*/
   else{
     return main_program(argc, argv);
   }
@@ -37,13 +39,14 @@ int main_program(int argc, char* argv[])
   filename = ncalloc(sizeof(char), strlen(argv[1])+1);
   strcpy(filename, argv[1]);
   p = prog_init();
+  /*allocate the memory for the variable [A-Z], the maxsize is 26*/
   p->library = (var*) ncalloc(sizeof(var), VARMAXSIZE);
   readin_prog(filename, p);
   free(filename);
   #if SDL
   Neill_SDL_Init(&sw);
   #endif
-
+  /*create a cursor*/
   c = create_cur();
   Main(p, c, &sw);
 
@@ -81,6 +84,7 @@ void Main(Prog *p, cur* c, SDL_Simplewin *sw)
 
 void Instrctlist(Prog *p, cur *c, SDL_Simplewin *sw)
 {
+  /*if the current word pointer has reached the end of the file but still didn't find the ending "}"*/
   if(p->cw >= p->size){
     prog_free(p);
     free(c);
@@ -125,6 +129,7 @@ void FD(Prog *p, cur *c, SDL_Simplewin *sw)
 {
 
   p->cw = p->cw + 1;
+  /*get the coordinate value of the current cursor place*/
   get_coord(c, Varnum(p));
   #if SDL
   draw(c, sw);
@@ -148,12 +153,14 @@ void draw(cur* c, SDL_Simplewin *sw)
 void LT(Prog *p, cur *c)
 {
   p->cw = p->cw + 1;
+  /*calculate the angle of turn*/
   c->degree -= fmod(Varnum(p), 360);
 }
 
 void RT(Prog *p, cur *c)
 {
   p->cw = p->cw + 1;
+  /*calculate the angle of turn*/
   c->degree += fmod(Varnum(p), 360);
 }
 
@@ -168,7 +175,7 @@ void DO(Prog *p, cur *c, SDL_Simplewin *sw)
     free(c);
     on_error("Expecting a variable?");
   }
-  vpos = p->cw;
+  vpos = p->cw; /*the place of the variable*/
 
   p->cw = p->cw + 1;
   if(!strsame(p->str[p->cw], "FROM")){
@@ -178,7 +185,7 @@ void DO(Prog *p, cur *c, SDL_Simplewin *sw)
   }
 
   p->cw = p->cw + 1;
-  min = Varnum(p);
+  min = Varnum(p); /*the starting/min value of the variable*/
 
   p->cw = p->cw + 1;
   if(!strsame(p->str[p->cw], "TO")){
@@ -188,7 +195,7 @@ void DO(Prog *p, cur *c, SDL_Simplewin *sw)
   }
 
   p->cw = p->cw + 1;
-  max = Varnum(p);
+  max = Varnum(p);/*the max value of the variable*/
 
   p->cw = p->cw + 1;
   if(!strsame(p->str[p->cw], "{")){
@@ -196,11 +203,11 @@ void DO(Prog *p, cur *c, SDL_Simplewin *sw)
   }
 
   p->cw = p->cw + 1;
-  startplace = p->cw;
-  v = add_var(p->library, p->str[vpos][0]);
-  v->value = min;
+  startplace = p->cw; /*refers to the starting instruction in the loop*/
+  v = add_var(p->library, p->str[vpos][0]); /*add the variable to the variable pool*/
+  v->value = min; /*store the variable value*/
   while(v->value <= max){
-    p->cw = startplace;
+    p->cw = startplace; /*starting at the first instruction in the loop every time*/
     Instrctlist(p, c, sw);
     v->value = v->value + 1;
   }
@@ -223,7 +230,7 @@ void SET(Prog *p)
   v = add_var(p->library, p->str[p->cw][0]);
   p->cw = p->cw + 1;
   s = stack_init();
-  Polish(p, &(v->value), s);
+  Polish(p, &(v->value), s);/*store the value of the variable after calculating the polish expression*/
 }
 
 void Polish(Prog *p, double* result, stack* s)
@@ -243,10 +250,12 @@ void Polish(Prog *p, double* result, stack* s)
     stack_free(s);
     return;
   }
+  /*if there is an operator, do the calculation*/
   if(isOp(p->str[p->cw])){
     calculate(s, p->str[p->cw][0]);
     Polish(p, result, s);
   }
+  /*if there is a variable or number, push it to the stack*/
   else if(isVarnum(p->str[p->cw])){
     stack_push(s, Varnum(p));
     Polish(p, result, s);
@@ -382,6 +391,7 @@ void calculate(stack* s, char c)
 
 var* add_var(var* library, char name)
 {
+  /*stored in alphabetical sequence, so as to reach O(1) complexity*/
   int index = name - 'A';
   library[index].name = name;
   return &library[index];

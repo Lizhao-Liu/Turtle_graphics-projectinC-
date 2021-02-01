@@ -1,3 +1,38 @@
+For the extension part, I have improved the original interpreter from three aspects:
+1. Add color choice for the user and update the grammar.
+
+2. Extend the variable choices from [A-Z] to [A-Za-z]+,
+   so that more meaningful variables can be created e.g. count, flag, num, length etc.
+
+   In this case, the variable choices are not limited to 26 which means a fixed size array is not a suitable choice anymore.
+   Therefore, in order to store and lookup the value of the variable quickly, I chose to use hash table to store each variable.
+   A hash code is used to coded the name of each variable and save the corresponding value.
+   The hash table contains structs which save the name and value of each item.
+
+3. Add the <DEFINE> and <CALL> instructions so that the user can use <DEFINE> to encapsulate a series of instructions and use <CALL> to call them.
+   Similar to store variables, the defined new instructions sets are stored in the hash table as well.
+   I named the variable pool and instruction pool "library", which is built in the program struct.
+   
+   For the newly defined instruction sets, the grammar is
+       <DEFINE> ::= "DEFINE" <NEWINSTRUCTION> "{" <INSTRCTLST>.
+   For example DEFINE [EXAMPLE] { FD 30 LT 30 }.
+   In this case, the name "[EXAMPLE]" is stored as the name of the instruction set.
+   The place (the current word place / p->cw) of the first instruction after "{" is saved as the value under the name [EXAMPLE].
+   So, the current word value of FD is saved as the value in the hash table.
+   In order to proceed the next step and skip the defined part between the "{" and "}", the problem is to find the next executable instruction.
+   To solve it, a stack is used.
+   The current word pointer starts reading from the  "{",
+   if there is a "{", push one to the stack.
+   if there is a "}", pop one from the stack.
+   if the stack is empty again, finish this process and go back to execute the next instrucion.
+   (see nextstep() function in extension.c)
+
+   As for <CALL> to call the saved instruction set. the program uses the name of the called instruction to locate its value in the hash table.
+   so, the word place of first instruction is returned, so that the program can execute the instructions in the defined instruction set
+   until it hits the "}" which indicates the ending of the defined new struction set.
+
+The updated grammar is shown below:
+
 <MAIN> ::= "{" <INSTRCTLST>
 <INSTRCTLST> ::= <INSTRUCTION><INSTRCTLST> | "}"
 <INSTRUCTION> ::= <FD> | <LT> | <RT> | <DO> | <SET> | <DEFINE> | <CALL>
@@ -8,7 +43,7 @@
 <DEFINE> ::= "DEFINE" <NEWINSTRUCTION> "{" <INSTRCTLST>
 <CALL>::= "CALL" <NEWINSTRUCTION>
 <NEWINSTRUCTION> ::= "[" [A-Z]+ "]"
-<VAR> ::= [A-Za-z]+ 
+<VAR> ::= [A-Za-z]+
 <VARNUM> ::= number | <VAR>
 <COLOR>::= "COLOR" <COLORCHOICES>
 <COLORCHOICES> ::= "Y" | "R" | "G" | "W" | "B" |"C" | "K"

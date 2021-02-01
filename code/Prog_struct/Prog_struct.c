@@ -4,8 +4,6 @@ Prog* prog_init(void)
 {
   Prog* p = (Prog*) ncalloc(sizeof(Prog), 1);
   p->str = (char**) ncalloc(sizeof(char*), INITSIZE);
-  p->cw = 0;
-  p->size = 0;
   p->capacity = INITSIZE;
   return p;
 }
@@ -34,6 +32,9 @@ bool prog_free(Prog* p)
   }
   for(i=0; i<p->size; i++){
     free(p->str[i]);
+  }
+  if(p->library){
+    free(p->library);
   }
   free(p->str);
   free(p);

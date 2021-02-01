@@ -3,57 +3,26 @@
 #include "../Prog_struct/Prog_struct.h"
 #include "../General/general.h"
 #include "../General/bool.h"
-#define TEST_TO_RUN 1
 
 
 void test_stack();
-void test_Prog_array();
+void test_Prog_struct();
 void test_hash();
-void test_tiny_func();
 
-
-int main_test1(void);
-int main_test_unit();
-int main_test_tiny_func(void);
-int main_program(int argc, char* argv[]);
-
-/*int main(int argc, char *argv[])
-{
-     switch(TEST_TO_RUN){
-       case 2:
-         return main_test1();
-       case 1:
-         return main_test_unit();
-       case 0:
-         return main_program(argc, argv);
-     }
-
-}*/
-
-/*int main_test_tiny_func(void)
-{
-  test_Prog_array();
-  test_stack();*/
-  /*test_tiny_func();*/
-  /*for extension*/
-  /*  test_hash();
-  return 0;
-
-}*/
 int main()
 {
-  test_Prog_array();
+  test_Prog_struct();
   test_stack();
   test_hash();
   return 0;
 }
 
-void test_Prog_array()
+void test_Prog_struct()
 {
   Prog* p;
   unsigned int i;
 
-  printf("Prog_array unit test started...\n");
+  printf("Prog_struct unit test started...\n");
 
   p = prog_init();
   assert(p->size==0);
@@ -77,7 +46,7 @@ void test_Prog_array()
   assert(prog_free(p));
   assert(prog_free(NULL));
 
-  printf("Prog_array test passed\n");
+  printf("Prog_array test passed.\n\n");
 }
 
 void test_stack()
@@ -116,7 +85,7 @@ void test_stack()
   assert(stack_isempty(s));
   assert(!stack_peek(s, &d));
   assert(stack_free(s));
-  printf("stack test Passed\n");
+  printf("stack test Passed.\n\n");
 }
 
 void test_hash()
@@ -145,5 +114,5 @@ void test_hash()
   assert(get_value(a, "zzsdfe")>9);
   assert(free_library(a));
 
-  printf("hashing test Passed\n");
+  printf("hashing test Passed.\n\n");
 }

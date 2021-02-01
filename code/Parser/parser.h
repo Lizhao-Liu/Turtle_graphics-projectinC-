@@ -1,7 +1,6 @@
 #include "../General/general.h"
 #include "../General/bool.h"
 #include "../Prog_struct/Prog_struct.h"
-#define strsame(A,B) (strcmp(A,B)==0)
 
 
 void readin_prog(char* filename, Prog* p);

@@ -1,6 +1,6 @@
 #include "../General/general.h"
 #include "../General/bool.h"
-#include "../Prog_struct/Prog_struct_interp.h"
+#include "../Prog_struct/Prog_struct.h"
 #include "../Stack/stack.h"
 #include "../sdl2/neillsdl2.h"
 
@@ -37,3 +37,7 @@ bool isVarnum(char* s);
 bool isOp(char* s);
 var* add_var(var* library, char name);
 double load_var(var* library, char name);
+cur* create_cur(void);
+void get_coord(cur *c, double dist);
+void update_coord(cur *c);
+void calculate(stack* s, char c);

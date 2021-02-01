@@ -1,5 +1,6 @@
 #include "general.h"
 
+
 void on_error(const char* s)
 {
    fprintf(stderr, "%s\n", s);

@@ -1,18 +1,28 @@
 #include "interp.h"
 
+#define TEST 0
+#define SDL 1
 #define ACCEPTED_ARGS 2
 #define MAXTOKENSIZE 20
 #define strsame(A,B) (strcmp(A,B)==0)
 #define deg2rad(angle) ((angle) * M_PI / 180.0)
 
-cur* create_cur(void);
-void get_coord(cur *c, double dist);
-void update_coord(cur *c);
-void calculate(stack* s, char c);
+
+int main_program(int argc, char* argv[]);
+int main_test();
 void draw(cur* c, SDL_Simplewin *sw);
 
 
-int main(int argc, char* argv[])
+int main(int argc, char* argv[]){
+  if(TEST==1){
+    return main_test();
+  }
+  else{
+    return main_program(argc, argv);
+  }
+}
+
+int main_program(int argc, char* argv[])
 {
   char* filename;
   Prog* p;
@@ -30,13 +40,17 @@ int main(int argc, char* argv[])
   p->library = (var*) ncalloc(sizeof(var), VARMAXSIZE);
   readin_prog(filename, p);
   free(filename);
-
-  /*Neill_SDL_Init(&sw);*/
+  #if SDL
+  Neill_SDL_Init(&sw);
+  #endif
 
   c = create_cur();
   Main(p, c, &sw);
-  /*SDL_Quit();
-  atexit(SDL_Quit);*/
+
+  #if SDL
+  SDL_Quit();
+  atexit(SDL_Quit);
+  #endif
   prog_free(p);
   free(c);
   return 0;
@@ -55,8 +69,9 @@ void readin_prog(char* filename, Prog* p)
 
 void Main(Prog *p, cur* c, SDL_Simplewin *sw)
 {
-  if(!strsame(p->str[p->cw],"{"))
-  {
+  if(!strsame(p->str[p->cw],"{")){
+    prog_free(p);
+    free(c);
     on_error("No Begin Symbol?");
   }
   p->cw = p->cw + 1;
@@ -65,6 +80,11 @@ void Main(Prog *p, cur* c, SDL_Simplewin *sw)
 
 void Instrctlist(Prog *p, cur *c, SDL_Simplewin *sw)
 {
+  if(p->cw >= p->size){
+    prog_free(p);
+    free(c);
+    on_error("No ending Symbol?");
+  }
   if(strsame(p->str[p->cw], "}")){
     return;
   }
@@ -95,6 +115,8 @@ void Instruction(Prog *p, cur *c, SDL_Simplewin *sw)
     SET(p);
     return;
   }
+  prog_free(p);
+  free(c);
   on_error("Expecting an instruction?");
 }
 
@@ -103,8 +125,12 @@ void FD(Prog *p, cur *c, SDL_Simplewin *sw)
 
   p->cw = p->cw + 1;
   get_coord(c, Varnum(p));
-  /*draw(c, sw);*/
-  printf("%d %d --> %d %d\n\n", c->x1+WWIDTH/2, c->y1+WHEIGHT/2, c->x2+WWIDTH/2, c->y2+WHEIGHT/2);
+  #if SDL
+  draw(c, sw);
+  #endif
+  /*
+  printf("%d %d --> %d %d\n\n", c->x1+WWIDTH/2, c->y1+WHEIGHT/2, \
+                                c->x2+WWIDTH/2, c->y2+WHEIGHT/2);*/
   update_coord(c);
 }
 
@@ -137,13 +163,17 @@ void DO(Prog *p, cur *c, SDL_Simplewin *sw)
 
   p->cw = p->cw + 1;
   if(!isVar(p->str[p->cw])){
+    prog_free(p);
+    free(c);
     on_error("Expecting a variable?");
   }
   vpos = p->cw;
 
   p->cw = p->cw + 1;
   if(!strsame(p->str[p->cw], "FROM")){
-    on_error("Incorrect Grammar: Expecting the word <FROM>?");
+    prog_free(p);
+    free(c);
+    on_error("Incorrect Grammar: Expecting the word <FROM> in DO?");
   }
 
   p->cw = p->cw + 1;
@@ -151,7 +181,9 @@ void DO(Prog *p, cur *c, SDL_Simplewin *sw)
 
   p->cw = p->cw + 1;
   if(!strsame(p->str[p->cw], "TO")){
-    on_error("Incorrect Grammar: Expecting the word <TO>?");
+    prog_free(p);
+    free(c);
+    on_error("Incorrect Grammar: Expecting the word <TO> in DO?");
   }
 
   p->cw = p->cw + 1;
@@ -159,7 +191,7 @@ void DO(Prog *p, cur *c, SDL_Simplewin *sw)
 
   p->cw = p->cw + 1;
   if(!strsame(p->str[p->cw], "{")){
-    on_error("Incorrect Grammar: Expecting < { >?");
+    on_error("Incorrect Grammar: Expecting < { > in DO?");
   }
 
   p->cw = p->cw + 1;
@@ -179,10 +211,12 @@ void SET(Prog *p)
   stack *s;
   p->cw = p->cw + 1;
   if(!isVar(p->str[p->cw])){
-    on_error("Expecting a varaible?");
+    prog_free(p);
+    on_error("Expecting a varaible? in SET");
   }
   if(!strsame(p->str[p->cw+1], ":=")){
-    on_error("Incorrect Grammar: Expecting <:=>?");
+    prog_free(p);
+    on_error("Incorrect Grammar: Expecting <:=> in SET?");
   }
 
   v = add_var(p->library, p->str[p->cw][0]);
@@ -197,11 +231,13 @@ void Polish(Prog *p, double* result, stack* s)
   if(strsame(p->str[p->cw], ";")){
     if(!stack_pop(s, result)){
       stack_free(s);
-      on_error("Fail to get the result");
+      prog_free(p);
+      on_error("Fail to calculate the result in SET");
     }
     if(!stack_isempty(s)){
       stack_free(s);
-      on_error("Stack still has items on it?");
+      prog_free(p);
+      on_error("Fail to calculate the result in SET");
     }
     stack_free(s);
     return;
@@ -216,6 +252,7 @@ void Polish(Prog *p, double* result, stack* s)
   }
   else{
     stack_free(s);
+    prog_free(p);
     on_error("Cannot read the polish expression");
   }
 }
@@ -223,6 +260,7 @@ void Polish(Prog *p, double* result, stack* s)
 void Op(Prog *p)
 {
   if(!isOp(p->str[p->cw])){
+    prog_free(p);
     on_error("Expecting an operator?");
   }
 }
@@ -238,6 +276,7 @@ double Varnum(Prog *p)
     sscanf(s, "%lf", &d);
   }
   else{
+    prog_free(p);
     on_error("Expecting a number or a varaible?");
   }
   return d;

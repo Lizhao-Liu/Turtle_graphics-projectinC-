@@ -8,26 +8,38 @@ VALGRIND= $(COMMON) $(DEBUG)
 PRODUCTION= $(COMMON) -O3
 LDLIBS = -lm
 
-testparser: test/testparser.c test/test.h Parser/parser.h Parser/parser.c Prog_struct/Prog_struct.c Prog_struct/Prog_struct.h General/general.h General/general.c
+parse: Parser/parser.h Parser/parser.c Prog_struct/Prog_struct.c Prog_struct/Prog_struct.h General/general.h General/general.c
+	$(CC) Parser/parser.c Prog_struct/Prog_struct.c General/general.c -o parse  $(PRODUCTION) $(LDLIBS)
+parse_s: Parser/parser.h Parser/parser.c Prog_struct/Prog_struct.c Prog_struct/Prog_struct.h General/general.h General/general.c
+	$(CC) Parser/parser.c Prog_struct/Prog_struct.c General/general.c  -o parse_s  $(SANITIZE) $(LDLIBS)
+parse_v: Parser/parser.h Parser/parser.c Prog_struct/Prog_struct.c Prog_struct/Prog_struct.h General/general.h General/general.c
+	$(CC)  Parser/parser.c Prog_struct/Prog_struct.c General/general.c  -o parse_v  $(VALGRIND) $(LDLIBS)
+testparser: test/testparser.c Parser/parser.h Parser/parser.c Prog_struct/Prog_struct.c Prog_struct/Prog_struct.h General/general.h General/general.c
 	$(CC) test/testparser.c Parser/parser.c Prog_struct/Prog_struct.c General/general.c -o testparser  $(PRODUCTION) $(LDLIBS)
 
-testparser_s: Parser/parser.h Parser/parser.c Prog_struct/Prog_struct.c Prog_struct/Prog_struct.h General/general.h General/general.c Parser/testparser.c Stack/stack.h Stack/stack.c
-	$(CC) Parser/testparser.c Parser/parser.c Prog_struct/Prog_struct.c General/general.c Stack/stack.c -o testparser_s  $(SANITIZE) $(LDLIBS)
 
-testparser_v: Parser/parser.h Parser/parser.c Prog_struct/Prog_struct.c Prog_struct/Prog_struct.h General/general.h General/general.c Parser/testparser.c Stack/stack.h Stack/stack.c
-	$(CC) Parser/testparser.c Parser/parser.c Prog_struct/Prog_struct.c General/general.c Stack/stack.c -o testparser_v  $(VALGRIND) $(LDLIBS)
-
-
-interpret: Interpreter/interp.h Interpreter/interp.c Prog_struct/Prog_struct_interp.c Prog_struct/Prog_struct_interp.h General/general.h General/general.c Stack/stack.h Stack/stack.c sdl2/neillsdl2.h sdl2/neillsdl2.c
-	$(CC) Interpreter/interp.c Prog_struct/Prog_struct_interp.c General/general.c Stack/stack.c sdl2/neillsdl2.c -o interpret $(PRODUCTION) $(LDLIBS) $(SDLCFLAGS) $(SDLLIBS)
-
-extension: Extension/extension.h Extension/extension.c Prog_struct/Prog_struct_interp.c Prog_struct/Prog_struct_interp.h Hashing/hash.c Hashing/hash.h General/general.h General/general.c Stack/stack.h Stack/stack.c sdl2/neillsdl2.h sdl2/neillsdl2.c
-	$(CC) Extension/extension.c Prog_struct/Prog_struct_interp.c General/general.c Stack/stack.c Hashing/hash.c sdl2/neillsdl2.c -o exten $(SANITIZE) $(LDLIBS) $(SDLCFLAGS) $(SDLLIBS)
+interp: Interpreter/interp.h Interpreter/interp.c Prog_struct/Prog_struct.c Prog_struct/Prog_struct.h General/general.h General/general.c Stack/stack.h Stack/stack.c sdl2/neillsdl2.h sdl2/neillsdl2.c
+	$(CC) Interpreter/interp.c Prog_struct/Prog_struct.c General/general.c Stack/stack.c sdl2/neillsdl2.c -o interp $(PRODUCTION) $(LDLIBS) $(SDLCFLAGS) $(SDLLIBS)
+interp_s: Interpreter/interp.h Interpreter/interp.c Prog_struct/Prog_struct.c Prog_struct/Prog_struct.h General/general.h General/general.c Stack/stack.h Stack/stack.c sdl2/neillsdl2.h sdl2/neillsdl2.c
+	$(CC) Interpreter/interp.c Prog_struct/Prog_struct.c General/general.c Stack/stack.c sdl2/neillsdl2.c -o interp_s $(SANITIZE) $(LDLIBS) $(SDLCFLAGS) $(SDLLIBS)
+interp_v: Interpreter/interp.h Interpreter/interp.c Prog_struct/Prog_struct.c Prog_struct/Prog_struct.h General/general.h General/general.c Stack/stack.h Stack/stack.c sdl2/neillsdl2.h sdl2/neillsdl2.c
+	$(CC) Interpreter/interp.c Prog_struct/Prog_struct.c General/general.c Stack/stack.c sdl2/neillsdl2.c -o interp_v $(VALGRIND) $(LDLIBS) $(SDLCFLAGS) $(SDLLIBS)
+testinterp: test/testinterpreter.c Interpreter/interp.h Interpreter/interp.c Prog_struct/Prog_struct.c Prog_struct/Prog_struct.h General/general.h General/general.c Stack/stack.h Stack/stack.c sdl2/neillsdl2.h sdl2/neillsdl2.c
+	$(CC) test/testinterpreter.c Interpreter/interp.c Prog_struct/Prog_struct.c General/general.c Stack/stack.c sdl2/neillsdl2.c -o testinterp $(PRODUCTION) $(LDLIBS) $(SDLCFLAGS) $(SDLLIBS)
 
 
+extension: Exten/extension.h Exten/extension.c Prog_struct/Prog_struct.c Prog_struct/Prog_struct.h Hashing/hash.c Hashing/hash.h General/general.h General/general.c Stack/stack.h Stack/stack.c sdl2/neillsdl2.h sdl2/neillsdl2.c
+	$(CC) Exten/extension.c Prog_struct/Prog_struct.c General/general.c Stack/stack.c Hashing/hash.c sdl2/neillsdl2.c -o extension $(PRODUCTION) $(LDLIBS) $(SDLCFLAGS) $(SDLLIBS)
+extension_s: Exten/extension.h Exten/extension.c Prog_struct/Prog_struct.c Prog_struct/Prog_struct.h Hashing/hash.c Hashing/hash.h General/general.h General/general.c Stack/stack.h Stack/stack.c sdl2/neillsdl2.h sdl2/neillsdl2.c
+	$(CC) Exten/extension.c Prog_struct/Prog_struct.c General/general.c Stack/stack.c Hashing/hash.c sdl2/neillsdl2.c -o extension_s $(SANITIZE) $(LDLIBS) $(SDLCFLAGS) $(SDLLIBS)
+extension_v: Exten/extension.h Exten/extension.c Prog_struct/Prog_struct.c Prog_struct/Prog_struct.h Hashing/hash.c Hashing/hash.h General/general.h General/general.c Stack/stack.h Stack/stack.c sdl2/neillsdl2.h sdl2/neillsdl2.c
+	$(CC) Exten/extension.c Prog_struct/Prog_struct.c General/general.c Stack/stack.c Hashing/hash.c sdl2/neillsdl2.c -o extension_v $(VALGRIND) $(LDLIBS) $(SDLCFLAGS) $(SDLLIBS)
+testextension: test/testextension.c Exten/extension.h Exten/extension.c Prog_struct/Prog_struct.c Prog_struct/Prog_struct.h Hashing/hash.c Hashing/hash.h General/general.h General/general.c Stack/stack.h Stack/stack.c sdl2/neillsdl2.h sdl2/neillsdl2.c
+	$(CC) test/testextension.c Exten/extension.c Prog_struct/Prog_struct.c General/general.c Stack/stack.c Hashing/hash.c sdl2/neillsdl2.c -o testextension $(PRODUCTION) $(LDLIBS) $(SDLCFLAGS) $(SDLLIBS)
 
-unittest: test/unit_test.c Stack/stack.h Stack/stack.c Prog_struct/Prog_struct.h Prog_struct/Prog_struct.c Hashing/hash.h Hashing/hash.c General/general.h General/general.c Parser/parser.h Parser/parser.c
-	$(CC) test/unit_test.c Stack/stack.c Prog_struct/Prog_struct.c Hashing/hash.c General/general.c Parser/parser.c -o unittest $(SANITIZE) $(LDLIBS) $(SDLCFLAGS) $(SDLLIBS)
+
+unittest: test/unit_test.c Stack/stack.h Stack/stack.c Prog_struct/Prog_struct.h Prog_struct/Prog_struct.c Hashing/hash.h Hashing/hash.c General/general.h General/general.c
+	$(CC) test/unit_test.c Stack/stack.c Prog_struct/Prog_struct.c Hashing/hash.c General/general.c -o unittest $(SANITIZE) $(LDLIBS) $(SDLCFLAGS) $(SDLLIBS)
 
 clean:
-	rm -f testparser_s testparser testparser_v
+	rm -f parse parse_s parse_v testparser interp interp_s interp_v testinterp extension extension_s extension_v testextension unittest

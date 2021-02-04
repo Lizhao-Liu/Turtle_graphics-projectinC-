@@ -58,4 +58,23 @@
 [Data](https://github.com/Lizhao-Liu/projects/tree/main/data)
 
 ## Example Result
-![https://github.com/Lizhao-Liu/projects/blob/main/code/Exten/out.gif]
+```
+{
+  DEFINE [STAR] {
+    RT 90
+    DO count FROM 1 TO 5 {
+      SET len := A 5 / ;
+      FD len COLOR Y
+      RT 144
+    }
+    LT 90
+  }
+
+  DO A FROM 10 TO 60 {
+    FD A COLOR K
+    RT 30
+    CALL [STAR]
+  }
+}
+```
+![image](https://github.com/Lizhao-Liu/projects/blob/main/code/Exten/out.gif)

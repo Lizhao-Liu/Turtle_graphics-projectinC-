@@ -5,7 +5,7 @@
 
 
 ## Grammar
-> basic grammar
+> basic formal grammar
 ```
   <MAIN> ::= "{" <INSTRCTLST>
   <INSTRCTLST> ::= <INSTRUCTION><INSTRCTLST> |
@@ -57,7 +57,7 @@
 ## Data
 [Data](https://github.com/Lizhao-Liu/projects/tree/main/data)
 
-## Example Result
+## Example Output
 ```
 {
   DEFINE [STAR] {

@@ -3,6 +3,15 @@
 ## Description
 [Project Description](https://github.com/Lizhao-Liu/projects/blob/main/Project.pdf)
 
+ Logo is a language with a direct translation approach that includes a built-in Turtle Graphics system. By sending commands to the turtle, users can intuitively learn the process of program execution, making it suitable for children's learning. This project aims to independently implement a syntax analyzer using C language, which can compile input code files, and additionally complete an interpreter to run the files and produce graphical output.
+
+
+Project Tasks:
+
+- [X] Implement code for lexical analysis, syntax analysis, semantic analysis, and interpretation execution modules.
+- [X] Use data structures such as stacks, queues, hash tables, and linked lists to read input files, manage and store variables, and run functions.
+- [X] During the implementation of the interpreter, use SQL to generate dynamic output.
+- [X] Conduct project testing using unit testing/integration testing, black-box/white-box testing methods.
 
 ## Grammar
 > basic formal grammar
